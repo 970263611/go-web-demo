@@ -8,21 +8,15 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"project/ent"
+	"project/file"
 	"time"
 )
 
 type DataSourcePG struct{}
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "pgadmin"
-	dbname   = "postgres"
-)
-
 func (pg DataSourcePG) Open() *ent.Client {
-	url := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		file.GetEnvParam().DatasourceHost, file.GetEnvParam().DatasourcePort, file.GetEnvParam().DatasourceUser, file.GetEnvParam().DatasourcePassword, file.GetEnvParam().DatasourceTable)
 	db, err := sql.Open("postgres", url)
 	if err != nil {
 		log.Fatal(err)

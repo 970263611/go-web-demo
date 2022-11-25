@@ -25,7 +25,8 @@ func Pg() {
 }
 
 func Client() *ent.Client {
-	if err := client.Debug().Schema.Create(context.Background(),migrate.WithGlobalUniqueID(false)); err != nil {
+	//if err := client.Debug().Schema.Create(context.Background(),migrate.WithGlobalUniqueID(false)); err != nil {
+	if err := client.Schema.Create(context.Background(),migrate.WithGlobalUniqueID(false)); err != nil {
 		log.Fatal(err)
 	}
 	return client

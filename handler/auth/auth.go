@@ -61,7 +61,9 @@ func Info(c *gin.Context) {
 func Search(c *gin.Context) {
 	util.CheckAdmin(c)
 	userCode := util.GetBodyMap(c)["id"].(string)
-	user := datasource.Client().User.Query().Where(user.UserCode(userCode))
+	user, _ := datasource.Client().User.Query().Where(user.UserCode(userCode)).Only(context.Background())
+	user.Password = ""
+	user.DefaultPassword = ""
 	c.JSON(http.StatusOK, result.Join(true, user))
 }
 
@@ -84,8 +86,9 @@ func Add(c *gin.Context) {
 
 func Update(c *gin.Context) {
 	util.CheckAdmin(c)
-	userCode := util.GetBodyMap(c)["username"].(string)
-	authList := util.GetBodyMap(c)["authList"].(map[string]any)
+	bodyMap := util.GetBodyMap(c)
+	userCode := bodyMap["username"].(string)
+	authList := bodyMap["authList"].(map[string]any)
 	datasource.Client().User.Update().Where(user.UserCode(userCode)).SetAuthList(authList).Save(context.Background())
 	c.JSON(http.StatusOK, result.Join(true, nil))
 }
@@ -110,8 +113,9 @@ func AdminChange(c *gin.Context) {
 	_, err2 := tx.User.Update().Where(user.UserCode(userCodeWillAdmin)).SetIsAdmin("0").Save(context.Background())
 	if err1 != nil || err2 != nil {
 		tx.Rollback()
+	} else {
+		tx.Commit()
 	}
-	tx.Commit()
 	token.RemoveAdmin(c.GetHeader("token"))
 	c.JSON(http.StatusOK, result.Join(true, nil))
 }
@@ -119,6 +123,11 @@ func AdminChange(c *gin.Context) {
 func ResetPassword(c *gin.Context) {
 	util.CheckAdmin(c)
 	userCode := util.GetBodyMap(c)["username"].(string)
-	datasource.Client().User.Update().Where(user.UserCode(userCode)).SetPassword(user.FieldDefaultPassword).Save(context.Background())
-	c.JSON(http.StatusOK, result.Join(true, nil))
+	userTemp, err := datasource.Client().User.Query().Where(user.UserCode(userCode)).Only(context.Background())
+	if err != nil {
+		datasource.Client().User.Update().Where(user.UserCode(userTemp.UserCode)).SetPassword(userTemp.DefaultPassword).Save(context.Background())
+		c.JSON(http.StatusOK, result.Join(true, nil))
+	} else {
+		c.JSON(http.StatusOK, result.Join(false, "cannot find match user"))
+	}
 }

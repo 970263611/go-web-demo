@@ -5,19 +5,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os"
 	"project/module"
 	"project/result"
 	"project/token"
 )
-
-func GetEnvDefault(key, defVal string) string {
-	val, ok := os.LookupEnv(key)
-	if ok {
-		return val
-	}
-	return defVal
-}
 
 func GetBodyMap(c *gin.Context) map[string]any {
 	json := make(map[string]any)

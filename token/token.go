@@ -1,20 +1,28 @@
 package token
 
 import (
+	"encoding/json"
 	"errors"
 	_ "fmt"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 	"log"
+	"project/consts"
+	"project/file"
 	"project/module"
 	"sync"
 	"time"
 )
 
 var tokenMap sync.Map
-var expiration int64 = 30 * 60 * 1000
 
 func init() {
+	tokenMapTempStr := file.Read(consts.TokenPersistence)
+	tokenMapTemp := make(map[string]module.TokenUser)
+	json.Unmarshal([]byte(tokenMapTempStr), &tokenMapTemp)
+	for k, v := range tokenMapTemp {
+		tokenMap.Store(k, &v)
+	}
 	check()
 }
 
@@ -33,11 +41,11 @@ func Refresh(token string) error {
 	if ok {
 		timeUnix := time.Now().Unix()
 		expirationTime := user.(*module.TokenUser).ExpirationTime
-		if timeUnix-expirationTime > expiration {
+		if timeUnix-expirationTime > file.GetEnvParam().TokenExpired {
 			tokenMap.Delete(token)
 			return errors.New("token expired")
 		}
-		user.(*module.TokenUser).ExpirationTime = timeUnix + expiration
+		user.(*module.TokenUser).ExpirationTime = timeUnix + file.GetEnvParam().TokenExpired
 	} else {
 		return errors.New("token expired")
 	}
@@ -49,8 +57,8 @@ func GetUser(token string) (*module.TokenUser, error) {
 	if ok {
 		timeUnix := time.Now().Unix()
 		expirationTime := user.(*module.TokenUser).ExpirationTime
-		if timeUnix-expirationTime < expiration {
-			user.(*module.TokenUser).ExpirationTime = timeUnix + expiration
+		if timeUnix-expirationTime < file.GetEnvParam().TokenExpired {
+			user.(*module.TokenUser).ExpirationTime = timeUnix + file.GetEnvParam().TokenExpired
 			return user.(*module.TokenUser), nil
 		}
 		tokenMap.Delete(token)
@@ -73,17 +81,25 @@ func check() {
 	crontab := cron.New(cron.WithSeconds())
 	//定义定时器调用的任务函数
 	task := func() {
+		tokenMapTemp := make(map[string]module.TokenUser)
 		tokenMap.Range(func(token, user interface{}) bool {
-			expirationTime := user.(*module.TokenUser).ExpirationTime
+			tokenUser := user.(*module.TokenUser)
+			expirationTime := tokenUser.ExpirationTime
 			timeUnix := time.Now().Unix()
-			if timeUnix-expirationTime > expiration {
+			if timeUnix-expirationTime > file.GetEnvParam().TokenExpired {
 				tokenMap.Delete(token)
+			} else {
+				tokenMapTemp[token.(string)] = *tokenUser
 			}
 			return true
 		})
+		tokenMapStr, err := json.Marshal(tokenMapTemp)
+		if err == nil {
+			file.Write(consts.TokenPersistence, string(tokenMapStr))
+		}
 	}
 	//定时任务
-	spec := "*/30 * * * * ?" //cron表达式，每30秒一次
+	spec := file.GetEnvParam().TokenRefreshCron
 	// 添加定时任务,
 	crontab.AddFunc(spec, task)
 	// 启动定时器
