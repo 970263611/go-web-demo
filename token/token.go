@@ -6,9 +6,9 @@ import (
 	_ "fmt"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
-	"log"
 	"project/consts"
 	"project/file"
+	"project/jwt"
 	"project/module"
 	"sync"
 	"time"
@@ -29,14 +29,23 @@ func init() {
 func Create(user *module.TokenUser) string {
 	out, err := uuid.NewUUID()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	token := out.String()
 	tokenMap.Store(token, user)
-	return token
+	jwtToken, err := jwt.GenerateJwtToken(jwt.Claims{UUID: token})
+	if err != nil {
+		panic(err)
+	}
+	return jwtToken
 }
 
-func Refresh(token string) error {
+func Refresh(tokenJwt string) error {
+	claims, err := jwt.ParseJwtToken(tokenJwt)
+	token := claims.UUID
+	if err != nil {
+		return errors.New("token expired")
+	}
 	user, ok := tokenMap.Load(token)
 	if ok {
 		timeUnix := time.Now().Unix()
@@ -52,7 +61,12 @@ func Refresh(token string) error {
 	return nil
 }
 
-func GetUser(token string) (*module.TokenUser, error) {
+func GetUser(tokenJwt string) (*module.TokenUser, error) {
+	claims, err := jwt.ParseJwtToken(tokenJwt)
+	if err != nil {
+		return nil, errors.New("token expired")
+	}
+	token := claims.UUID
 	user, ok := tokenMap.Load(token)
 	if ok {
 		timeUnix := time.Now().Unix()

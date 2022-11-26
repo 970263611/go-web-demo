@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"project/datasource"
+	"project/ent"
 	"project/ent/user"
 	"project/module"
 	"project/result"
@@ -49,13 +50,43 @@ func Reset(c *gin.Context) {
 }
 
 func Info(c *gin.Context) {
-	var flag = false
-	username := c.Query("username")
-	password := c.Query("password")
-	if strings.Compare(username, "admin") == 0 && strings.Compare(password, "123456") == 0 {
-		flag = true
+	loginUser := util.GetLoginUser(c)
+	user, err := datasource.Client().User.Query().Where(user.UserCode(loginUser.UserCode)).Only(context.Background())
+	if err == nil {
+		res := make(map[string]any)
+		res["IsAdmin"] = user.IsAdmin
+		res["name"] = user.Username
+		departments, err1 := datasource.Client().Dept.Query().All(context.Background())
+		if err1 != nil {
+			c.JSON(http.StatusOK, result.Join(false, nil))
+		} else {
+			deptTemp := make(map[string]ent.Dept)
+			for _, dept := range departments {
+				deptTemp[dept.DeptId] = *dept
+			}
+			resList := make([]map[string]any, 0)
+			for parent, children := range user.AuthList {
+				tempParent := make(map[string]any)
+				deptParent := deptTemp[parent]
+				tempParent["id"] = deptParent.DeptId
+				tempParent["name"] = deptParent.Name
+				tempList := make([]map[string]any, 0)
+				for _, child := range children.([]interface{}) {
+					tempChildren := make(map[string]any)
+					deptChild := deptTemp[child.(string)]
+					tempChildren["id"] = deptChild.DeptId
+					tempChildren["name"] = deptChild.Name
+					tempList = append(tempList, tempChildren)
+				}
+				tempParent["children"] = tempList
+				resList = append(resList, tempParent)
+			}
+			res["menus"] = resList
+			c.JSON(http.StatusOK, result.Join(true, res))
+		}
+	} else {
+		c.JSON(http.StatusOK, result.Join(false, nil))
 	}
-	c.JSON(http.StatusOK, result.Join(flag, nil))
 }
 
 func Search(c *gin.Context) {

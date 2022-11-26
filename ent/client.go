@@ -10,7 +10,7 @@ import (
 
 	"project/ent/migrate"
 
-	"project/ent/menu"
+	"project/ent/dept"
 	"project/ent/user"
 
 	"entgo.io/ent/dialect"
@@ -22,8 +22,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Menu is the client for interacting with the Menu builders.
-	Menu *MenuClient
+	// Dept is the client for interacting with the Dept builders.
+	Dept *DeptClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -39,7 +39,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Menu = NewMenuClient(c.config)
+	c.Dept = NewDeptClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -74,7 +74,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:    ctx,
 		config: cfg,
-		Menu:   NewMenuClient(cfg),
+		Dept:   NewDeptClient(cfg),
 		User:   NewUserClient(cfg),
 	}, nil
 }
@@ -95,7 +95,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:    ctx,
 		config: cfg,
-		Menu:   NewMenuClient(cfg),
+		Dept:   NewDeptClient(cfg),
 		User:   NewUserClient(cfg),
 	}, nil
 }
@@ -103,7 +103,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Menu.
+//		Dept.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -125,88 +125,88 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Menu.Use(hooks...)
+	c.Dept.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
-// MenuClient is a client for the Menu schema.
-type MenuClient struct {
+// DeptClient is a client for the Dept schema.
+type DeptClient struct {
 	config
 }
 
-// NewMenuClient returns a client for the Menu from the given config.
-func NewMenuClient(c config) *MenuClient {
-	return &MenuClient{config: c}
+// NewDeptClient returns a client for the Dept from the given config.
+func NewDeptClient(c config) *DeptClient {
+	return &DeptClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menu.Hooks(f(g(h())))`.
-func (c *MenuClient) Use(hooks ...Hook) {
-	c.hooks.Menu = append(c.hooks.Menu, hooks...)
+// A call to `Use(f, g, h)` equals to `dept.Hooks(f(g(h())))`.
+func (c *DeptClient) Use(hooks ...Hook) {
+	c.hooks.Dept = append(c.hooks.Dept, hooks...)
 }
 
-// Create returns a builder for creating a Menu entity.
-func (c *MenuClient) Create() *MenuCreate {
-	mutation := newMenuMutation(c.config, OpCreate)
-	return &MenuCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a Dept entity.
+func (c *DeptClient) Create() *DeptCreate {
+	mutation := newDeptMutation(c.config, OpCreate)
+	return &DeptCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Menu entities.
-func (c *MenuClient) CreateBulk(builders ...*MenuCreate) *MenuCreateBulk {
-	return &MenuCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Dept entities.
+func (c *DeptClient) CreateBulk(builders ...*DeptCreate) *DeptCreateBulk {
+	return &DeptCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Menu.
-func (c *MenuClient) Update() *MenuUpdate {
-	mutation := newMenuMutation(c.config, OpUpdate)
-	return &MenuUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Dept.
+func (c *DeptClient) Update() *DeptUpdate {
+	mutation := newDeptMutation(c.config, OpUpdate)
+	return &DeptUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *MenuClient) UpdateOne(m *Menu) *MenuUpdateOne {
-	mutation := newMenuMutation(c.config, OpUpdateOne, withMenu(m))
-	return &MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *DeptClient) UpdateOne(d *Dept) *DeptUpdateOne {
+	mutation := newDeptMutation(c.config, OpUpdateOne, withDept(d))
+	return &DeptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *MenuClient) UpdateOneID(id int) *MenuUpdateOne {
-	mutation := newMenuMutation(c.config, OpUpdateOne, withMenuID(id))
-	return &MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *DeptClient) UpdateOneID(id int) *DeptUpdateOne {
+	mutation := newDeptMutation(c.config, OpUpdateOne, withDeptID(id))
+	return &DeptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Menu.
-func (c *MenuClient) Delete() *MenuDelete {
-	mutation := newMenuMutation(c.config, OpDelete)
-	return &MenuDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Dept.
+func (c *DeptClient) Delete() *DeptDelete {
+	mutation := newDeptMutation(c.config, OpDelete)
+	return &DeptDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *MenuClient) DeleteOne(m *Menu) *MenuDeleteOne {
-	return c.DeleteOneID(m.ID)
+func (c *DeptClient) DeleteOne(d *Dept) *DeptDeleteOne {
+	return c.DeleteOneID(d.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuClient) DeleteOneID(id int) *MenuDeleteOne {
-	builder := c.Delete().Where(menu.ID(id))
+func (c *DeptClient) DeleteOneID(id int) *DeptDeleteOne {
+	builder := c.Delete().Where(dept.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &MenuDeleteOne{builder}
+	return &DeptDeleteOne{builder}
 }
 
-// Query returns a query builder for Menu.
-func (c *MenuClient) Query() *MenuQuery {
-	return &MenuQuery{
+// Query returns a query builder for Dept.
+func (c *DeptClient) Query() *DeptQuery {
+	return &DeptQuery{
 		config: c.config,
 	}
 }
 
-// Get returns a Menu entity by its id.
-func (c *MenuClient) Get(ctx context.Context, id int) (*Menu, error) {
-	return c.Query().Where(menu.ID(id)).Only(ctx)
+// Get returns a Dept entity by its id.
+func (c *DeptClient) Get(ctx context.Context, id int) (*Dept, error) {
+	return c.Query().Where(dept.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *MenuClient) GetX(ctx context.Context, id int) *Menu {
+func (c *DeptClient) GetX(ctx context.Context, id int) *Dept {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -215,8 +215,8 @@ func (c *MenuClient) GetX(ctx context.Context, id int) *Menu {
 }
 
 // Hooks returns the client hooks.
-func (c *MenuClient) Hooks() []Hook {
-	return c.hooks.Menu
+func (c *DeptClient) Hooks() []Hook {
+	return c.hooks.Dept
 }
 
 // UserClient is a client for the User schema.

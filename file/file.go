@@ -13,8 +13,9 @@ type Config struct {
 	DatasourceUser     string `properties:"datasource.user,default=postgres"`
 	DatasourcePassword string `properties:"datasource.password,default=pgadmin"`
 	DatasourceTable    string `properties:"datasource.table,default=postgres"`
-	TokenExpired       int64  `properties:"token.expired,default=1800000"`
+	TokenExpired       int64  `properties:"token.expired,default=1800"`
 	TokenRefreshCron   string `properties:"token.refresh.cron,default=*/30 * * * * ?"`
+	TokenSecret        string `properties:"token.secret,default=dahuawudimeimeida,jishufeichanghao,xinxiangshicheng,wanshiruyi"`
 }
 
 var cfg Config

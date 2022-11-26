@@ -9,7 +9,6 @@ import (
 // User holds the schema definition for the User entity.
 type User struct {
 	ent.Schema
-	Menu
 }
 
 // Fields of the User.

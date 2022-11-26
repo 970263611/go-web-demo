@@ -5,7 +5,7 @@ package ent
 import (
 	"context"
 	"fmt"
-	"project/ent/menu"
+	"project/ent/dept"
 	"project/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
@@ -13,45 +13,45 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// MenuDelete is the builder for deleting a Menu entity.
-type MenuDelete struct {
+// DeptDelete is the builder for deleting a Dept entity.
+type DeptDelete struct {
 	config
 	hooks    []Hook
-	mutation *MenuMutation
+	mutation *DeptMutation
 }
 
-// Where appends a list predicates to the MenuDelete builder.
-func (md *MenuDelete) Where(ps ...predicate.Menu) *MenuDelete {
-	md.mutation.Where(ps...)
-	return md
+// Where appends a list predicates to the DeptDelete builder.
+func (dd *DeptDelete) Where(ps ...predicate.Dept) *DeptDelete {
+	dd.mutation.Where(ps...)
+	return dd
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (md *MenuDelete) Exec(ctx context.Context) (int, error) {
+func (dd *DeptDelete) Exec(ctx context.Context) (int, error) {
 	var (
 		err      error
 		affected int
 	)
-	if len(md.hooks) == 0 {
-		affected, err = md.sqlExec(ctx)
+	if len(dd.hooks) == 0 {
+		affected, err = dd.sqlExec(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*MenuMutation)
+			mutation, ok := m.(*DeptMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
-			md.mutation = mutation
-			affected, err = md.sqlExec(ctx)
+			dd.mutation = mutation
+			affected, err = dd.sqlExec(ctx)
 			mutation.done = true
 			return affected, err
 		})
-		for i := len(md.hooks) - 1; i >= 0; i-- {
-			if md.hooks[i] == nil {
+		for i := len(dd.hooks) - 1; i >= 0; i-- {
+			if dd.hooks[i] == nil {
 				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
 			}
-			mut = md.hooks[i](mut)
+			mut = dd.hooks[i](mut)
 		}
-		if _, err := mut.Mutate(ctx, md.mutation); err != nil {
+		if _, err := mut.Mutate(ctx, dd.mutation); err != nil {
 			return 0, err
 		}
 	}
@@ -59,57 +59,57 @@ func (md *MenuDelete) Exec(ctx context.Context) (int, error) {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (md *MenuDelete) ExecX(ctx context.Context) int {
-	n, err := md.Exec(ctx)
+func (dd *DeptDelete) ExecX(ctx context.Context) int {
+	n, err := dd.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (md *MenuDelete) sqlExec(ctx context.Context) (int, error) {
+func (dd *DeptDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := &sqlgraph.DeleteSpec{
 		Node: &sqlgraph.NodeSpec{
-			Table: menu.Table,
+			Table: dept.Table,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: menu.FieldID,
+				Column: dept.FieldID,
 			},
 		},
 	}
-	if ps := md.mutation.predicates; len(ps) > 0 {
+	if ps := dd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, md.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, dd.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
 	return affected, err
 }
 
-// MenuDeleteOne is the builder for deleting a single Menu entity.
-type MenuDeleteOne struct {
-	md *MenuDelete
+// DeptDeleteOne is the builder for deleting a single Dept entity.
+type DeptDeleteOne struct {
+	dd *DeptDelete
 }
 
 // Exec executes the deletion query.
-func (mdo *MenuDeleteOne) Exec(ctx context.Context) error {
-	n, err := mdo.md.Exec(ctx)
+func (ddo *DeptDeleteOne) Exec(ctx context.Context) error {
+	n, err := ddo.dd.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{menu.Label}
+		return &NotFoundError{dept.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (mdo *MenuDeleteOne) ExecX(ctx context.Context) {
-	mdo.md.ExecX(ctx)
+func (ddo *DeptDeleteOne) ExecX(ctx context.Context) {
+	ddo.dd.ExecX(ctx)
 }

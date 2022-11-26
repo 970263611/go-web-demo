@@ -8,15 +8,15 @@ import (
 	"project/ent"
 )
 
-// The MenuFunc type is an adapter to allow the use of ordinary
-// function as Menu mutator.
-type MenuFunc func(context.Context, *ent.MenuMutation) (ent.Value, error)
+// The DeptFunc type is an adapter to allow the use of ordinary
+// function as Dept mutator.
+type DeptFunc func(context.Context, *ent.DeptMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f MenuFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.MenuMutation)
+func (f DeptFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.DeptMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MenuMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeptMutation", m)
 	}
 	return f(ctx, mv)
 }

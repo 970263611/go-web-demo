@@ -12,8 +12,9 @@ func AuthFilter() gin.HandlerFunc {
 		token := c.GetHeader("token")
 		err := tokenUtil.Refresh(token)
 		if err != nil {
-			c.Abort()
 			c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+			c.Abort()
+			return
 		} else {
 			c.Next()
 		}

@@ -8,18 +8,19 @@ import (
 )
 
 var (
-	// MenusColumns holds the columns for the "menus" table.
-	MenusColumns = []*schema.Column{
+	// DeptsColumns holds the columns for the "depts" table.
+	DeptsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "dept_id", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
-		{Name: "name_id", Type: field.TypeString},
-		{Name: "parent_id", Type: field.TypeInt64},
+		{Name: "parent_id", Type: field.TypeString, Nullable: true},
+		{Name: "ext", Type: field.TypeString, Nullable: true},
 	}
-	// MenusTable holds the schema information for the "menus" table.
-	MenusTable = &schema.Table{
-		Name:       "menus",
-		Columns:    MenusColumns,
-		PrimaryKey: []*schema.Column{MenusColumns[0]},
+	// DeptsTable holds the schema information for the "depts" table.
+	DeptsTable = &schema.Table{
+		Name:       "depts",
+		Columns:    DeptsColumns,
+		PrimaryKey: []*schema.Column{DeptsColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -29,7 +30,7 @@ var (
 		{Name: "password", Type: field.TypeString, Nullable: true, Size: 50},
 		{Name: "default_password", Type: field.TypeString, Size: 50},
 		{Name: "is_admin", Type: field.TypeEnum, Nullable: true, Enums: []string{"0", "1"}, Default: "1"},
-		{Name: "create_time", Type: field.TypeInt64, Default: 1669283392},
+		{Name: "create_time", Type: field.TypeInt64, Default: 1669382798},
 		{Name: "login_time", Type: field.TypeInt64, Nullable: true},
 		{Name: "auth_list", Type: field.TypeJSON, Nullable: true},
 	}
@@ -41,7 +42,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		MenusTable,
+		DeptsTable,
 		UsersTable,
 	}
 )

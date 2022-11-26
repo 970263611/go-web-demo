@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"project/ent/dept"
 	"project/ent/schema"
 	"project/ent/user"
 )
@@ -11,6 +12,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	deptFields := schema.Dept{}.Fields()
+	_ = deptFields
+	// deptDescDeptId is the schema descriptor for deptId field.
+	deptDescDeptId := deptFields[0].Descriptor()
+	// dept.DeptIdValidator is a validator for the "deptId" field. It is called by the builders before save.
+	dept.DeptIdValidator = deptDescDeptId.Validators[0].(func(string) error)
+	// deptDescName is the schema descriptor for name field.
+	deptDescName := deptFields[1].Descriptor()
+	// dept.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	dept.NameValidator = deptDescName.Validators[0].(func(string) error)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescUserCode is the schema descriptor for userCode field.
