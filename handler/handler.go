@@ -5,6 +5,7 @@ import (
 	"project/handler/auth"
 	"project/handler/filter"
 	"project/handler/health"
+	"project/handler/picture"
 )
 
 func Do(router *gin.Engine) {
@@ -61,6 +62,62 @@ func Do(router *gin.Engine) {
 	router.POST(
 		"/reset/password",
 		auth.ResetPassword,
+	)
+	//评分上升和下降列表
+	listGroup := router.Group("list")
+	listGroup.POST(
+		"/score",
+		picture.Score,
+	)
+	//风险预警列表接口
+	listGroup.POST(
+		"/risk",
+		picture.Risk,
+	)
+	//首页主图列表
+	listGroup.POST(
+		"/select",
+		picture.Select,
+	)
+	//人员增减动态变化图接口
+	listGroup.POST(
+		"/upAndDown",
+		picture.UpAndDown,
+	)
+	//高潜人才接口
+	listGroup.POST(
+		"/personalEchart",
+		picture.PersonalEchart,
+	)
+	//员工个人页基本信息
+	listGroup.POST(
+		"/steps",
+		picture.Steps,
+	)
+	//个人标签云图接口
+	listGroup.POST(
+		"/cloud",
+		picture.Cloud,
+	)
+	//个人轨迹接口
+	listGroup.POST(
+		"/history",
+		picture.History,
+	)
+	//个人历史分值
+	listGroup.POST(
+		"/userDetails",
+		picture.UserDetails,
+	)
+	//处室员工列表接口接口
+	listGroup.POST(
+		"/depart",
+		picture.Depart,
+	)
+	//离职原因接口
+	router.POST(
+		"/risk/reason",
+		picture.RiskReason,
 	)
 }
 

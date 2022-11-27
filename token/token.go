@@ -42,10 +42,10 @@ func Create(user *module.TokenUser) string {
 
 func Refresh(tokenJwt string) error {
 	claims, err := jwt.ParseJwtToken(tokenJwt)
-	token := claims.UUID
 	if err != nil {
 		return errors.New("token expired")
 	}
+	token := claims.UUID
 	user, ok := tokenMap.Load(token)
 	if ok {
 		timeUnix := time.Now().Unix()
