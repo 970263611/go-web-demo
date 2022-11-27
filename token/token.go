@@ -26,18 +26,18 @@ func init() {
 	check()
 }
 
-func Create(user *module.TokenUser) string {
+func Create(user *module.TokenUser) (string, error) {
 	out, err := uuid.NewUUID()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	token := out.String()
 	tokenMap.Store(token, user)
 	jwtToken, err := jwt.GenerateJwtToken(jwt.Claims{UUID: token})
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return jwtToken
+	return jwtToken, nil
 }
 
 func Refresh(tokenJwt string) error {
