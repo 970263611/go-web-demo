@@ -222,10 +222,10 @@ func ResetPassword(c *gin.Context) {
 		userCode := json["username"].(string)
 		userTemp, err := datasource.Client().User.Query().Where(user.UserCode(userCode)).Only(context.Background())
 		if err != nil {
+			c.JSON(http.StatusOK, result.Join(false, "cannot find match user"))
+		} else {
 			datasource.Client().User.Update().Where(user.UserCode(userTemp.UserCode)).SetPassword(userTemp.DefaultPassword).Save(context.Background())
 			c.JSON(http.StatusOK, result.Join(true, nil))
-		} else {
-			c.JSON(http.StatusOK, result.Join(false, "cannot find match user"))
 		}
 	} else {
 		c.JSON(http.StatusForbidden, result.Join(false, "you do not have permission"))
